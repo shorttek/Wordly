@@ -5,6 +5,7 @@ window.Wordly = (function() {
 		var _canvas = canvas;
 		var ctx = _canvas.getContext('2d');
 
+		var player1;
 		var allMovables = [];
 
 		var movable = function(x, y, width, height) {
@@ -13,10 +14,27 @@ window.Wordly = (function() {
 			var _width = width;
 			var _height = height;
 
-			_vx = 1;
-			_vy = 1;
+			var velocityIncrease = 0;
+			var rotationIncrease = 0;
+			var direction = 0;
+
+			_vx = 0;
+			_vy = 0;
 
 			var move = function() {
+
+				if (velocityIncrease != 0) {
+					_vx = _vx + (1 * velocityIncrease);
+					_vy = _vy + (1 * velocityIncrease);
+				}
+
+				if (_vx < 0) { _vx = 0; }
+				if (_vy < 0) { _vy = 0; }
+
+				if (_vx == 0 && _vy == 0) {
+					velocityIncrease = 0;
+				}
+
 				_x = _x + _vx;
 				_y = _y + _vx;
 
@@ -42,12 +60,24 @@ window.Wordly = (function() {
 				_vy = _vy + offsetVy;
 			}
 
+			var setVelocityDirection = function(dir) {
+				
+				velocityIncrease = velocityIncrease + dir;
+				console.log(velocityIncrease);
+			}
+
+			var setRotationIncrease = function(rot) {
+				rotationIncrease = rot;
+			}
+
 			return {
 				move : move,
 				getX : getX,
 				getY : getY,
 				getWidth : getWidth,
-				getHeight : getHeight
+				getHeight : getHeight,
+				setVelocityDirection: setVelocityDirection,
+				setRotationIncrease: setRotationIncrease
 			};
 		}
 
@@ -72,11 +102,56 @@ window.Wordly = (function() {
 			updateAllObjects();
 			draw();
 
-			setTimeout(update, 1);
+			setTimeout(update, 50);
 		}
 
-		var start = function() {
-			allMovables.push(new movable(20, 20, 10, 10));
+		var start = function(document) {
+			player1  = new movable(20, 20, 10, 10);
+			allMovables.push(player1);
+
+			document.onkeydown = function(e) {
+				if (!player1) return;
+
+				switch(e.keyCode) {
+					case 37:
+						console.log('left');
+						break;
+					case 38:
+						console.log('up');
+						player1.setVelocityDirection(1);
+						break;
+					case 39:
+						console.log('right')
+						break;
+					case 40:
+						console.log('down');
+						player1.setVelocityDirection(-1);
+						break;
+				}
+			}
+
+			document.onkeyup = function(e) {
+
+				if (!player1) return;
+				switch(e.keyCode) {
+					case 37:
+						console.log('left released');
+						break;
+					case 38:
+						console.log('up released');
+						player1.setVelocityDirection(0);
+						break;
+					case 39:
+						console.log('right released')
+						break;
+					case 40:
+						console.log('down released');
+						player1.setVelocityDirection(0);
+						break;
+				}
+			}
+
+			
 
 			update();
 		}
